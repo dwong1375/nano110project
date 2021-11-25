@@ -1,0 +1,4 @@
+#ignore .out files in the base directory, since they're just clutter
+*.out
+
+#there's another .gitignore file in the results folder that overrides ignorance of .out files
