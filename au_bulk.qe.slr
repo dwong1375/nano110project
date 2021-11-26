@@ -36,7 +36,8 @@ mkdir -p $out_dir
 #mkdir -p $code_dir
 
 cp $BASH_SOURCE $out_dir/${output_format}.slr #save snapshot of sourecode at time of job run
-cp ${jobname}.in $temp_dir
+cp ${jobname}.in $out_dir/${output_format}.in #save snapshot of input at time of job submission
+cp ${jobname}.in $temp_dir #move to temp dir so we can operate on it
 cd $temp_dir
 
 
