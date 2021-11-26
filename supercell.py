@@ -49,7 +49,7 @@ with open(input_file, "r") as f:
             for nb in range(b):
                 for nc in range(c):
                     #space delimited format
-                    data += f"{atom} {x + na} {y + nb} {z + nc} \n"
+                    data += f"{atom} {(x + na)/a} {(y + nb)/b} {(z + nc)/c} \n"
 
 #we'll be printing to stdout, user can decide if they want to redirect to file
 print(data)
