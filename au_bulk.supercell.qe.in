@@ -1,0 +1,39 @@
+&control
+   calculation = 'scf'
+   restart_mode='from_scratch',
+   prefix='au',
+   tstress = .true.
+   tprnfor = .true.
+   pseudo_dir = '/expanse/lustre/projects/csd622/tpascal/nano110/qe/pseudo/',
+   outdir='./'
+   verbosity = 'high'
+/
+
+&system
+    ibrav           = 1,
+    a               = 4.07825,
+    nat             = 4,
+    ntyp            = 1,
+    ecutwfc         = 30.0,
+    ecutrho         = 300.0,
+    occupations = 'smearing',
+    smearing = 'gaussian',
+    degauss = 0.003
+/
+
+&electrons
+    conv_thr        = 1.0d-8
+    mixing_beta     = 0.3
+/
+
+ATOMIC_SPECIES
+   Au    196.96655    au_pbe_v1.uspp.F.UPF
+
+K_POINTS (automatic)
+4 4 4 0 0 0
+
+ATOMIC_POSITIONS {crystal}
+Au       0.0000000000      0.0000000000      0.0000000000                 
+Au       0.0000000000      0.5000000000      0.5000000000                 
+Au       0.5000000000      0.0000000000      0.5000000000                 
+Au       0.5000000000      0.5000000000      0.0000000000                 
