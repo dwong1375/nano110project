@@ -1,0 +1,57 @@
+&control
+   calculation = 'relax'
+   restart_mode='from_scratch',
+   prefix='surface',
+   tstress = .true.
+   tprnfor = .true.
+   pseudo_dir = '/expanse/lustre/projects/csd622/tpascal/nano110/qe/pseudo/',
+   outdir='./'
+   verbosity = 'high'
+/
+
+&system
+    ibrav           = 8,
+    a               = 7.95354,
+	b = 7.95354,
+	c = 13.97677,
+    nat             = 16,
+    ntyp            = 1,
+    ecutwfc         = 30.0,
+    ecutrho         = 300.0,
+    occupations = 'smearing',
+    smearing = 'gaussian',
+    degauss = 0.003
+/
+
+&electrons
+    conv_thr        = 1.0d-6
+    mixing_beta     = 0.3
+/
+
+&ions
+	ion_dynamics = 'bfgs'
+/
+
+ATOMIC_SPECIES
+Pt    195.084  pt_pbe_v1.4.uspp.F.UPF
+
+K_POINTS (automatic)
+6 6 1 0 0 0
+
+ATOMIC_POSITIONS {angstrom}
+Pt       0.0000000000      0.0000000000      0.0000000000                 
+Pt       3.9767700000      1.9883850000      1.9883850000                 
+Pt       1.9883850000      0.0000000000      1.9883850000                 
+Pt       1.9883850000      1.9883850000      0.0000000000                 
+Pt       0.0000000000      3.9767700000      0.0000000000                 
+Pt       3.9767700000      5.9651550000      1.9883850000                 
+Pt       1.9883850000      3.9767700000      1.9883850000                 
+Pt       1.9883850000      5.9651550000      0.0000000000                 
+Pt       3.9767700000      0.0000000000      0.0000000000                 
+Pt       7.9535400000      1.9883850000      1.9883850000                 
+Pt       5.9651550000      0.0000000000      1.9883850000                 
+Pt       5.9651550000      1.9883850000      0.0000000000                 
+Pt       3.9767700000      3.9767700000      0.0000000000                 
+Pt       7.9535400000      5.9651550000      1.9883850000                 
+Pt       5.9651550000      3.9767700000      1.9883850000                 
+Pt       5.9651550000      5.9651550000      0.0000000000                 

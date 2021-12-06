@@ -1,0 +1,60 @@
+#!/bin/bash
+#SBATCH -p shared
+#SBATCH -A csd622
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
+#SBATCH -t 1:00:00
+#SBATCH -o %x.%A_%a.out
+#SBATCH --export=ALL
+#SBATCH --array=4-8
+
+
+### vary the k points of surfaces!
+### change jobname with command -J "filename.qe" to change the input file
+
+#load modules
+module purge
+module load slurm cpu/0.15.4  gcc/9.2.0  openmpi/3.1.6 quantum-espresso/6.7.0-openblas
+module list
+
+
+#define variables
+jobname=$SLURM_JOB_NAME #name of file
+output_format=${jobname}.${SLURM_ARRAY_JOB_ID} #what the output folder will be named
+
+
+# to change the input .in file, change the jobname 
+template_file=${jobname}.in #name of the input template
+
+
+#define directories
+#note: need separate temp folder for each task in array because QE temp files will get overwritten if they're all in same folder
+# can result in "fortran runtime errors" for accessing files if not separate folder
+temp_dir=/expanse/lustre/scratch/$USER/temp_project/qe/$output_format/${SLURM_ARRAY_TASK_ID} #the slurm working dir
+out_dir=results/$output_format #the output dir
+
+#create directories
+cd $SLURM_SUBMIT_DIR
+mkdir -p $temp_dir
+mkdir -p $out_dir
+
+#save copies of files at time of job run
+cp $BASH_SOURCE $out_dir/${output_format}.slr #save snapshot of sourcecode at time of job run
+cp $template_file $out_dir/${output_format}.in #save snapshot of input at time of job run
+
+#copy files to tempdir
+cp $template_file $temp_dir #move to temp dir so we can operate on it
+cd $temp_dir
+
+
+
+k=${SLURM_ARRAY_TASK_ID} #get value for k points from slurm array task id
+k_format=${jobname}.${k}_${k}_1 #note: assume surface is in xy plane, kx and ky are same
+
+in_file=${k_format}.in
+out_file=${k_format}.out
+sed "s/%k/${k}/g" $template_file > $in_file #replace %k in input file with actual k
+
+# use tee instead of > so that we can get periodic updates 
+srun --mpi=pmi2 -n $SLURM_NPROCS pw.x -npool 1 -input $in_file | tee $out_file
+cp $in_file $out_file $SLURM_SUBMIT_DIR/$out_dir
