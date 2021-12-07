@@ -1,0 +1,61 @@
+&control
+   calculation = 'relax'
+   restart_mode='from_scratch',
+   prefix='surface',
+   tstress = .true.
+   tprnfor = .true.
+   pseudo_dir = '/expanse/lustre/projects/csd622/tpascal/nano110/qe/pseudo/',
+   outdir='./'
+   verbosity = 'high'
+/
+
+&system
+    ibrav           = 8,
+    a               = 12.48164,
+	b = 8.82586,
+	c = 12.94195,
+    nat             = 18,
+    ntyp            = 1,
+    ecutwfc         = 30.0,
+    ecutrho         = 300.0,
+    occupations = 'smearing',
+    smearing = 'gaussian',
+    degauss = 0.003
+/
+
+&electrons
+    conv_thr        = 1.0d-6
+    mixing_beta     = 0.3
+/
+
+&ions
+	ion_dynamics = 'bfgs'
+/
+
+ATOMIC_SPECIES
+Ag    107.86820    ag_pbe_v1.4.uspp.F.UPF
+
+K_POINTS (automatic)
+4 4 1 0 0 0
+
+
+! 3x3x1 supercell, see cif in lattice_files
+ATOMIC_POSITIONS {angstrom}
+Ag       0.0000000000      0.0000000000      0.0000000000                 
+Ag       2.0802740000      1.4709760000      1.4709760000                 
+Ag       0.0000000000      2.9419520000      0.0000000000                 
+Ag       2.0802740000      4.4129280000      1.4709760000                 
+Ag       0.0000000000      5.8839040000      0.0000000000                 
+Ag       2.0802740000      7.3548800000      1.4709760000                 
+Ag       4.1605480000      0.0000000000      0.0000000000                 
+Ag       6.2408220000      1.4709760000      1.4709760000                 
+Ag       4.1605480000      2.9419520000      0.0000000000                 
+Ag       6.2408220000      4.4129280000      1.4709760000                 
+Ag       4.1605480000      5.8839040000      0.0000000000                 
+Ag       6.2408220000      7.3548800000      1.4709760000                 
+Ag       8.3210960000      0.0000000000      0.0000000000                 
+Ag      10.4013700000      1.4709760000      1.4709760000                 
+Ag       8.3210960000      2.9419520000      0.0000000000                 
+Ag      10.4013700000      4.4129280000      1.4709760000                 
+Ag       8.3210960000      5.8839040000      0.0000000000                 
+Ag      10.4013700000      7.3548800000      1.4709760000                 

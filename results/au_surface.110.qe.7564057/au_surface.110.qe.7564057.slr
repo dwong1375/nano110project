@@ -2,7 +2,7 @@
 #SBATCH -p shared
 #SBATCH -A csd622
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=32
+#SBATCH --ntasks-per-node=64
 #SBATCH --mem-per-cpu=2G
 #SBATCH -t 1:00:00
 #SBATCH -o %x.%j.out

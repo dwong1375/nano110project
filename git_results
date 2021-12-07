@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+# a script that reads the symlinks in "good_results" to see what folders to add to git tree
+realpath good_results/* --relative-to=. > temp
+
+while read -r file
+do
+	git add $file
+	echo $file
+done < temp

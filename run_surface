@@ -1,0 +1,20 @@
+#!/bin/bash
+
+atom=$1
+surface=$2
+filename=${atom}_surface.${surface}.qe
+if test ! -r ${filename}.in
+then
+	echo "${filename}.in not found, aborting" >&2
+	exit
+fi
+
+
+sbatch -J $filename surface.qe.slr
+
+#for atom in au ag pt
+#do
+#	for surface in 100 110 111
+#	do
+#	done
+#done
