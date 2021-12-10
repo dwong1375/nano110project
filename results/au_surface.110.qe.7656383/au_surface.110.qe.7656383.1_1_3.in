@@ -1,0 +1,49 @@
+&control
+   calculation = 'relax'
+   restart_mode='from_scratch',
+   prefix='surface',
+   tstress = .true.
+   tprnfor = .true.
+   pseudo_dir = '/expanse/lustre/projects/csd622/tpascal/nano110/qe/pseudo/',
+   outdir='./'
+   verbosity = 'high'
+/
+
+&system
+    ibrav           = 8,
+    a = 4.078250,
+	b = 2.883760,
+	c = 18.651280,
+    nat = 6,
+    ntyp            = 1,
+    ecutwfc         = 30.0,
+    ecutrho         = 300.0,
+    occupations = 'smearing',
+    smearing = 'gaussian',
+    degauss = 0.003
+/
+
+&electrons
+    conv_thr        = 1.0d-6
+    mixing_beta     = 0.3
+/
+
+&ions
+	ion_dynamics = 'bfgs'
+/
+
+ATOMIC_SPECIES
+Au    196.96655    au_pbe_v1.uspp.F.UPF 
+
+K_POINTS (automatic)
+4 4 1 0 0 0
+
+
+ATOMIC_POSITIONS {angstrom}
+Au 0.000000 0.000000 0.000000 
+Au 0.000000 0.000000 2.883760 
+Au 0.000000 0.000000 5.767520 
+Au 2.039125 1.441880 1.441880 
+Au 2.039125 1.441880 4.325640 
+Au 2.039125 1.441880 7.209400 
+
