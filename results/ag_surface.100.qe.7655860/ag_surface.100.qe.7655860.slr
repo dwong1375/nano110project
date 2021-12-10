@@ -1,0 +1,123 @@
+#!/bin/bash
+#SBATCH -p shared
+#SBATCH -A csd622
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 3:00:00
+#SBATCH -o %x.%j.out
+#SBATCH --export=ALL
+
+### Create supercells of a surface to test out how that affects things
+### Supercell base unit should be a primitive cell (ie from a cif)
+
+#load modules
+module purge
+module load slurm cpu/0.15.4  gcc/9.2.0  openmpi/3.1.6 quantum-espresso/6.7.0-openblas
+module list
+
+# variables to define in command line
+size_x=$1
+size_y=$2
+size_z=$3
+
+
+jobname=$SLURM_JOB_NAME #name of file
+output_format=${jobname}.${SLURM_JOB_ID} #what the output folder will be named
+template_file=${jobname}.in
+
+#define directories
+#note: need separate temp folder for each task in array because QE temp files will get overwritten if they're all in same folder
+# can result in "fortran runtime errors" for accessing files if not separate folder
+temp_dir=/expanse/lustre/scratch/$USER/temp_project/qe/$output_format/${SLURM_ARRAY_TASK_ID} #the slurm working dir
+out_dir=results/$output_format #the output dir
+
+#create directories
+cd $SLURM_SUBMIT_DIR
+mkdir -p $temp_dir
+mkdir -p $out_dir
+
+
+#copy files
+cp $BASH_SOURCE $out_dir/${output_format}.slr #save snapshot of sourecode at time of job run
+cp $template_file $out_dir/${output_format}.in #save snapshot of input at time of job submission
+
+cp supercell.py $temp_dir # copy supercell script to temp dir
+cp defraction.py $temp_dir
+cp $template_file $temp_dir #move to temp dir so we can operate on it
+cd $temp_dir
+
+size_format=${size_x}_${size_y}_${size_z}
+
+in_file=${output_format}.${size_format}.in
+out_file=${output_format}.${size_format}.out
+
+cat $template_file > $in_file
+
+#find initial dimensions and reaplce with supercell dimensions
+function get_dim () {
+	dim=$1
+	grep -n "\b${dim}[ ]*=" $in_file | cut -d = -f 2 | cut -d , -f 1 #gets the value of dim
+}
+
+function replace_dim () {
+	dim=$1 #the dimension name
+	new_dim=$2 #new value
+	sed -iE "s/\b$dim[ ]*=.*/$dim = ${new_dim},/" $in_file #replace value of dim
+}
+
+a=$(get_dim a)
+b=$(get_dim b)
+c=$(get_dim c)
+
+echo $a, $b, $c
+
+a_scaled=$(printf "%.*f\n" 6 $( bc <<< "scale=6;$a * $size_x") )
+b_scaled=$(printf "%.*f\n" 6 $( bc <<< "scale=6;$b * $size_y") )
+c_scaled=$(printf "%.*f\n" 6 $( bc <<< "scale=6;$c * $size_z") )
+
+replace_dim a $a_scaled
+replace_dim b $b_scaled
+
+# add 10 A vacuum on c direction
+replace_dim c $(echo "$c_scaled + 10" | bc)
+
+# read atom coords from input
+tempfile=temp #create new file to hold atom coords
+#this regex matches lines with 3 coords (with decimal points)
+coords_regex="\b[ ]*[0-9]\.[0-9]*[ ]*[0-9]\.[0-9]*[ ]*[0-9]\.[0-9]*"
+cat $in_file | grep -E "$coords_regex" > $tempfile 
+cat $tempfile
+python supercell.py $tempfile $size_x $size_y $size_z > temp2
+
+#now convert the atomic coords to angstroms
+python defraction.py temp2 $a_scaled $b_scaled $c_scaled > temp3
+sed -i "/$coords_regex/d" $in_file #delete old coords
+sed -i '/\bATOMIC_POSITIONS/r temp3' $in_file #add new coords
+
+#and replace {crystal} with {angstrom}
+sed -i "s/{crystal}/{angstrom}/" $in_file
+
+
+#now replace the nat
+num_atoms=$(cat temp3 | wc -l)
+num_atoms=$(( $num_atoms - 1 )) #subtract 1 due to the extra newline
+echo "Num atoms: $num_atoms"
+sed -iE "s/\bnat[ ]*=.*/nat = ${num_atoms},/" $in_file
+
+
+
+cat $in_file
+
+
+# use tee instead of > so that we can get periodic updates 
+srun --mpi=pmi2 -n $SLURM_NPROCS pw.x -npool 1 -input $in_file | tee $out_file
+cp $in_file $out_file $SLURM_SUBMIT_DIR/$out_dir
+
+#commit and push to github automatically once run is done
+cd $SLURM_SUBMIT_DIR
+#read github pat
+GITHUB_PAT=$(cat pat.env)
+git add $out_dir
+git checkout -b auto
+git commit -m "$jobname $size_x $size_y $size_z"
+git push https://${GITHUB_PAT}@github.com/dwong1375/project_pico.git
