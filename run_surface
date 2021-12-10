@@ -10,7 +10,8 @@ then
 fi
 
 
-sbatch -J $filename surface.qe.slr
+
+sbatch -J $filename surface.supercell.qe.slr 2 2 3
 
 #for atom in au ag pt
 #do

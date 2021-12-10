@@ -3,7 +3,7 @@
 #SBATCH -A csd622
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=64
-#SBATCH -t 2:30:00
+#SBATCH -t 3:00:00
 #SBATCH -o %x.%j.out
 #SBATCH --export=ALL
 
